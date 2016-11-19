@@ -41,16 +41,16 @@ func (suite *ServerTestSuite) TestStartWrongPort() {
 func (suite *ServerTestSuite) TestStart() {
 	go Start("9090", []*Endpoint{
 		&Endpoint{
-			method:  "GET",
-			path:    "/",
-			handler: suite.customGetEndpointHandler,
+			Method:  "GET",
+			Path:    "/",
+			Handler: suite.customGetEndpointHandler,
 		}})
 }
 
 func (suite *ServerTestSuite) TestStartWrongEndpoint() {
 	err := Start("", []*Endpoint{
 		&Endpoint{
-			method: "WRONG",
+			Method: "WRONG",
 		}})
 	suite.assert.NotNil(err)
 }
@@ -74,9 +74,9 @@ func (suite *ServerTestSuite) TestInitServerWithWrongError() {
 
 func (suite *ServerTestSuite) TestCreateRouterWithGoodEndpoints() {
 	endpoint := &Endpoint{
-		method:  "GET",
-		path:    "/",
-		handler: suite.customGetEndpointHandler,
+		Method:  "GET",
+		Path:    "/",
+		Handler: suite.customGetEndpointHandler,
 	}
 	router, err := createRouter([]*Endpoint{endpoint})
 	suite.assert.Nil(err)
@@ -85,7 +85,7 @@ func (suite *ServerTestSuite) TestCreateRouterWithGoodEndpoints() {
 
 func (suite *ServerTestSuite) TestCreateRouterWithEndpointsAndWrongMethod() {
 	endpoint := &Endpoint{
-		method: "WRONG",
+		Method: "WRONG",
 	}
 	router, err := createRouter([]*Endpoint{endpoint})
 	suite.assert.NotNil(err)
@@ -94,8 +94,8 @@ func (suite *ServerTestSuite) TestCreateRouterWithEndpointsAndWrongMethod() {
 
 func (suite *ServerTestSuite) TestCreateRouterWithEndpointsAndEmptyPath() {
 	endpoint := &Endpoint{
-		method: "GET",
-		path:   "",
+		Method: "GET",
+		Path:   "",
 	}
 	router, err := createRouter([]*Endpoint{endpoint})
 	suite.assert.NotNil(err)
@@ -104,9 +104,9 @@ func (suite *ServerTestSuite) TestCreateRouterWithEndpointsAndEmptyPath() {
 
 func (suite *ServerTestSuite) TestCreateRouterWithEndpointsAndNilHandler() {
 	endpoint := &Endpoint{
-		method:  "GET",
-		path:    "/",
-		handler: nil,
+		Method:  "GET",
+		Path:    "/",
+		Handler: nil,
 	}
 	router, err := createRouter([]*Endpoint{endpoint})
 	suite.assert.NotNil(err)

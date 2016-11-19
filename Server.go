@@ -25,9 +25,9 @@ var allowedMethods = map[string]bool{
 
 // Endpoint ...
 type Endpoint struct {
-	method  string
-	path    string
-	handler func(w http.ResponseWriter, r *http.Request)
+	Method  string
+	Path    string
+	Handler func(w http.ResponseWriter, r *http.Request)
 }
 
 // Start Spins up a new HTTP server to handle requests
@@ -70,7 +70,7 @@ func createRouter(endpoints []*Endpoint) (*mux.Router, error) {
 func addEndpointsToRouter(router *mux.Router, endpoints []*Endpoint) error {
 	for _, endpoint := range endpoints {
 		if isEndpointOK(endpoint) {
-			method, path, handler := endpoint.method, endpoint.path, endpoint.handler
+			method, path, handler := endpoint.Method, endpoint.Path, endpoint.Handler
 			router.Methods(method).Path(path).Handler(handlerWrapper(handler))
 		} else {
 			return fmt.Errorf("Wrong format for endpoint %v", endpoint)
@@ -80,10 +80,10 @@ func addEndpointsToRouter(router *mux.Router, endpoints []*Endpoint) error {
 }
 
 func isEndpointOK(endpoint *Endpoint) bool {
-	if !isHTTPMethodAllowed(endpoint.method) {
+	if !isHTTPMethodAllowed(endpoint.Method) {
 		return false
 	}
-	if endpoint.path == "" || endpoint.handler == nil {
+	if endpoint.Path == "" || endpoint.Handler == nil {
 		return false
 	}
 	return true
@@ -131,4 +131,8 @@ func SendResponseWithStatus(
 	w.WriteHeader(status)
 	_, err := fmt.Fprintf(w, response)
 	return err
+}
+
+func GetQueryParams(request *http.Request) map[string]string {
+	return mux.Vars(request)
 }
