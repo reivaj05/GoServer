@@ -12,7 +12,9 @@ import (
 const (
 	missingPortError = "port can't be empty"
 	nanPortError     = "port must be a number"
-	notFoundMsg      = `{"error": "Not found"}`
+	ResourceNotFound = `{"error": "Resource not found"}`
+	BadRequest       = `{"error": "Bad request"}`
+	ResourceCreated  = `{"message": "Resource created"}`
 )
 
 var allowedMethods = map[string]bool{
@@ -27,7 +29,7 @@ var allowedMethods = map[string]bool{
 type Endpoint struct {
 	Method  string
 	Path    string
-	Handler func(w http.ResponseWriter, r *http.Request)
+	Handler http.HandlerFunc
 }
 
 // Start Spins up a new HTTP server to handle requests
@@ -62,8 +64,6 @@ func createRouter(endpoints []*Endpoint) (*mux.Router, error) {
 	if err := addEndpointsToRouter(router, endpoints); err != nil {
 		return nil, err
 	}
-	// router.Methods("GET").Path("/").Handler(handlerWrapper(usageHandler))
-	// router.Methods("POST").Path("/").Handler(handlerWrapper(augmentationHandler))
 	return router, nil
 }
 
@@ -96,15 +96,25 @@ func isHTTPMethodAllowed(method string) bool {
 	return true
 }
 
-func handlerWrapper(handler http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func handlerWrapper(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		http.HandlerFunc(handler).ServeHTTP(w, r)
-	})
+		if origin := r.Header.Get("Origin"); origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers",
+				"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		}
+		// Stop here if its Preflighted OPTIONS request
+		if r.Method == "OPTIONS" {
+			return
+		}
+		handler.ServeHTTP(w, r)
+	}
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	SendResponseWithStatus(w, notFoundMsg, http.StatusNotFound)
+	SendResponseWithStatus(w, ResourceNotFound, http.StatusNotFound)
 }
 
 func AreRequestHeadersWrong(request *http.Request, headers map[string]string) error {

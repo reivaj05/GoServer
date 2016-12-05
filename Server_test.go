@@ -115,7 +115,7 @@ func (suite *ServerTestSuite) TestCreateRouterWithEndpointsAndNilHandler() {
 
 func (suite *ServerTestSuite) TestNotFoundHandler() {
 	reponse, status := suite.performRequest("GET", suite.serverNotFoundServer.URL, nil, nil)
-	suite.assert.Equal(notFoundMsg, reponse)
+	suite.assert.Equal(ResourceNotFound, reponse)
 	suite.assert.Equal(http.StatusNotFound, status)
 }
 
@@ -128,7 +128,9 @@ func (suite *ServerTestSuite) TestCustomGetEndpointWrongHeaders() {
 
 func (suite *ServerTestSuite) TestCustomGetEndpointWithHeaders() {
 	reponse, status := suite.performRequest("GET", suite.customGetEndpointServer.URL, nil,
-		map[string]string{"Content-Type": "application/json"})
+		map[string]string{
+			"Content-Type": "application/json",
+			"Origin":       "localhost"})
 	suite.assert.Equal("{}", reponse)
 	suite.assert.Equal(http.StatusOK, status)
 }
