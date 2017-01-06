@@ -195,6 +195,12 @@ func (suite *ServerTestSuite) customPostEndpointHandler(w http.ResponseWriter, r
 	SendResponseWithStatus(w, `{"response": "response"}`, http.StatusOK)
 }
 
+func (suite *ServerTestSuite) TestGetQueryParams() {
+	mockRequest, _ := http.NewRequest("GET", "http://localhost/?id=1&db=10", nil)
+	params := GetQueryParams(mockRequest)
+	suite.assert.NotNil(params)
+}
+
 func TestServer(t *testing.T) {
 	suite.Run(t, new(ServerTestSuite))
 }

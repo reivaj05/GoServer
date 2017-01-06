@@ -144,5 +144,9 @@ func SendResponseWithStatus(
 }
 
 func GetQueryParams(request *http.Request) map[string]string {
-	return mux.Vars(request)
+	params := mux.Vars(request)
+	if params == nil {
+		params = map[string]string{}
+	}
+	return params
 }
